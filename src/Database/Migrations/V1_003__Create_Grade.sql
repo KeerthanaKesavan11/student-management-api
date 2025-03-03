@@ -1,0 +1,5 @@
+CREATE TABLE grade (
+grade_id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+grade CHAR(1) NOT NULL,
+score_range VARCHAR(20)
+);
