@@ -8,4 +8,3 @@ CREATE TABLE student (
     isactive BOOLEAN DEFAULT TRUE,
     CONSTRAINT pk_student PRIMARY KEY (student_id)
 );
-

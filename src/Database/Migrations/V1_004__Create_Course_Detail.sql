@@ -10,5 +10,3 @@ CREATE TABLE course_detail (
     CONSTRAINT fk_course_detail_course_id FOREIGN KEY (course_id)  REFERENCES course (course_id),
     CONSTRAINT fk_course_detail_grade FOREIGN KEY (grade)  REFERENCES grade (grade)
 );
-
-

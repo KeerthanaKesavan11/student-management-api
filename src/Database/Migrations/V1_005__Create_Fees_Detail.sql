@@ -7,4 +7,3 @@ CREATE TABLE fees_detail (
     CONSTRAINT pk_fees_detail PRIMARY KEY (fees_detail_id),
     CONSTRAINT fk_fees_detail_enrollment_id FOREIGN KEY (enrollment_id) REFERENCES course_detail (enrollment_id)
 );
-
