@@ -1,0 +1,119 @@
+﻿using Microsoft.EntityFrameworkCore;
+using StudentManagement.Models.Models;
+using StudentManagement.Models.Models.DTOs;
+using StudentManagement.Repository.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace StudentManagement.Repository
+{
+    public class StudentRepository : IStudentRepository
+    {
+        private readonly StudentManagementContext _context;
+        public StudentRepository(StudentManagementContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<StudentModel>> GetAllStudentsAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Students
+                .Where(student => student.IsActive == true)
+                .Select(student => new StudentModel
+                {
+                    StudentId = student.StudentId,
+                    StudentName = student.StudentName,
+                    Dob = student.Dob,
+                    Email = student.Email,
+                    PhoneNumber = student.PhoneNumber,
+                    Address = student.Address
+                })
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<StudentModel?> GetStudentsByIdAsync(int studentId, CancellationToken cancellationToken)
+        {
+            var student = await _context.Students
+                .Where(s => s.StudentId == studentId && s.IsActive == true)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (student == null)
+            {
+                return null;
+            }
+
+            return new StudentModel
+            {
+                StudentId = student.StudentId,
+                StudentName = student.StudentName,
+                Dob = student.Dob,
+                Email = student.Email,
+                PhoneNumber = student.PhoneNumber,
+                Address = student.Address
+            };
+        }
+
+        public async Task<StudentModel?> GetStudentAsync(int studentId, CancellationToken cancellationToken)
+        {
+            var student = await _context.Students
+                .AsNoTracking()
+                .Where(s => s.StudentId == studentId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (student == null)
+            {
+                return null;
+            }
+
+            return new StudentModel
+            {
+                StudentId = student.StudentId,
+                StudentName = student.StudentName,
+                Dob = student.Dob,
+                Email = student.Email,
+                PhoneNumber = student.PhoneNumber,
+                Address = student.Address
+            };
+        }
+
+        public async Task AddStudentAsync(Student student, CancellationToken cancellationToken)
+        {
+            _context.Students.Add(student);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task UpdateStudentAsync(Student student, CancellationToken cancellationToken)
+        {
+            _context.Students.Update(student);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task ActivateStudentAsync(Student student, CancellationToken cancellationToken)
+        {
+            _context.Students.Update(student);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        public async Task DeleteStudentAsync(int studentId, CancellationToken cancellationToken)
+        {
+            var student = await _context.Students.FindAsync(new object[] { studentId }, cancellationToken);
+            if (student == null)
+            {
+                throw new ArgumentException("Student not found");
+            }
+
+            student.IsActive = false;
+            _context.Students.Update(student);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public void Attach(Student student)
+        {
+            _context.Students.Attach(student);
+        }
+    }
+
+
+}

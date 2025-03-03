@@ -3,3 +3,14 @@
 ################################################################################
 
 /.vs
+/src/Service/StudentManagement/bin/Debug/net8.0
+/src/Service/StudentManagement/obj
+/src/Service/StudentManagement.Domain/bin/Debug/net8.0
+/src/Service/StudentManagement.Domain/obj
+/src/Service/StudentManagement.Models/bin/Debug/net8.0
+/src/Service/StudentManagement.Models/obj
+/src/Service/StudentManagement.Repository/obj
+/src/Service/StudentManagement.UnitTests/bin
+/src/Service/StudentManagement.UnitTests/obj
+/src/Service/StudentManagement.Repository/bin/Debug/net8.0
+/src/Service/.vs/StudentManagement
