@@ -12,7 +12,7 @@ public partial class CourseDetail
 
     public char Grade { get; set; }
 
-    public bool? Isactive { get; set; }
+    public bool? IsActive { get; set; }
 
     public virtual Course Course { get; set; } = null!;
 

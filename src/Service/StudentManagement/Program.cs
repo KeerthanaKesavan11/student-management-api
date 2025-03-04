@@ -21,7 +21,9 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddValidatorsFromAssembly(typeof(GetStudentsByIdQueryValidator).Assembly);
 
-builder.Services.AddTransient<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+
 
 builder.Services.AddApiVersioning(options =>
 {

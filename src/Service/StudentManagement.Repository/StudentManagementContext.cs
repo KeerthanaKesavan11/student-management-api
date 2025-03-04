@@ -70,7 +70,7 @@ public partial class StudentManagementContext : DbContext
             entity.Property(e => e.Grade)
                 .HasMaxLength(1)
                 .HasColumnName(EntityConstants.Grade);
-            entity.Property(e => e.Isactive)
+            entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
                 .HasColumnName(EntityConstants.IsActive);
             entity.Property(e => e.StudentId).HasColumnName(EntityConstants.StudentId);
