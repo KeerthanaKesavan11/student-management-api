@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace StudentManagement.Models.Models.DTOs
 {
@@ -17,6 +12,5 @@ namespace StudentManagement.Models.Models.DTOs
         public string Address { get; set; } = null!;
         [JsonIgnore]
         public bool IsActive { get; set; }
-    }
-    
+    }    
 }

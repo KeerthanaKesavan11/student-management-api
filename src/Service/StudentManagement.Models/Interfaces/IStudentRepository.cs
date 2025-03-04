@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StudentManagement.Models.Models;
+﻿using StudentManagement.Models.Models;
 using StudentManagement.Models.Models.DTOs;
 
 namespace StudentManagement.Repository.Interfaces

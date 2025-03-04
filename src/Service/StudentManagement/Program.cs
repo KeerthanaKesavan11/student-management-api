@@ -1,16 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using StudentManagement.Domain.Handlers;
 using StudentManagement.Models.Models;
 using StudentManagement.Repository;
 using StudentManagement.Repository.Interfaces;
-using Swashbuckle.AspNetCore.Swagger;
-using System.Reflection;
-using MediatR;
 using StudentManagement.Domain.Validators;
-using FluentValidation.AspNetCore;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,7 +43,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

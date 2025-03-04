@@ -1,11 +1,5 @@
 ﻿using MediatR;
-using StudentManagement.Models.Models;
 using StudentManagement.Models.Models.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StudentManagement.Domain.Command
 {

@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using StudentManagement.Domain.Command;
-using System;
 
 namespace StudentManagement.Domain.Validators
 {
@@ -21,8 +20,7 @@ namespace StudentManagement.Domain.Validators
                 .EmailAddress().WithMessage("Valid email is required")
                 .NotEmpty().WithMessage("Email is required.")
                 .Must(BeAValidEmail).WithMessage("Email is required.");
-                //.When(x => !string.IsNullOrEmpty(x.Email) && !string.Equals(x.Email, "string", StringComparison.OrdinalIgnoreCase))
-                
+                   
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.")
                 .Must(BeAValidPhoneNumber).WithMessage("Phone number is required.");

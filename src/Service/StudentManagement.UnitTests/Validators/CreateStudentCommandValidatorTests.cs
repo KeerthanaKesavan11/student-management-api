@@ -1,8 +1,6 @@
-﻿using System;
-using FluentValidation.TestHelper;
+﻿using FluentValidation.TestHelper;
 using StudentManagement.Domain.Command;
 using StudentManagement.Domain.Validators;
-using Xunit;
 
 namespace StudentManagement.UnitTests.Validators
 {
@@ -111,7 +109,3 @@ namespace StudentManagement.UnitTests.Validators
         }
     }
 }
-
-
-
-

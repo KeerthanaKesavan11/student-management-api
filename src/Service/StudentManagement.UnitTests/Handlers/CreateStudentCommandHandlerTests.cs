@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentValidation;
-using FluentValidation.Results;
+﻿using FluentValidation;
 using Moq;
 using StudentManagement.Domain.Command;
 using StudentManagement.Domain.Handlers;
 using StudentManagement.Domain.Validators;
 using StudentManagement.Models.Models;
 using StudentManagement.Repository.Interfaces;
-using Xunit;
 
 namespace StudentManagement.UnitTests.Handlers
 {
@@ -27,7 +22,7 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_ValidRequest_ShouldCreateStudent()
         {
-            // Arrange
+           
             var command = new CreateStudentCommand
             {
                 StudentName = "John Doe",
@@ -51,10 +46,10 @@ namespace StudentManagement.UnitTests.Handlers
                 .Callback<Student, CancellationToken>((s, ct) => s.StudentId = student.StudentId)
                 .Returns(Task.CompletedTask);
 
-            // Act
+            
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            // Assert
+            
             Assert.NotNull(result);
             Assert.Equal(student.StudentId, result.StudentId);
             Assert.Equal(student.StudentName, result.StudentName);
@@ -68,7 +63,7 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_InvalidRequest_ShouldThrowValidationException()
         {
-            // Arrange
+            
             var command = new CreateStudentCommand
             {
                 StudentName = "",
@@ -81,7 +76,7 @@ namespace StudentManagement.UnitTests.Handlers
             var validator = new CreateStudentCommandValidator();
             var results = await validator.ValidateAsync(command, CancellationToken.None);
 
-            // Act & Assert
+           
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
             Assert.Equal(results.Errors, exception.Errors);
         }

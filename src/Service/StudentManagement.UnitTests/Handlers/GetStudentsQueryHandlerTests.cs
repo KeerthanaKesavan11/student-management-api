@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Moq;
+﻿using Moq;
 using StudentManagement.Domain.Handlers;
 using StudentManagement.Domain.Queries;
-using StudentManagement.Models.Models;
 using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Repository.Interfaces;
-using Xunit;
 
 namespace StudentManagement.UnitTests.Handlers
 {
@@ -25,8 +20,7 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_ShouldReturnAllStudents()
         {
-            // Arrange
-            var students = new List<StudentModel>
+           var students = new List<StudentModel>
             {
                 new StudentModel
                 {
@@ -53,10 +47,8 @@ namespace StudentManagement.UnitTests.Handlers
             _repositoryMock.Setup(r => r.GetAllStudentsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(students);
 
-            // Act
             var result = await _handler.Handle(new GetStudentsQuery(), CancellationToken.None);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());
             Assert.Equal(students, result);
@@ -66,16 +58,14 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_NoStudents_ShouldReturnEmptyList()
         {
-            // Arrange
+            
             var students = new List<StudentModel>();
 
             _repositoryMock.Setup(r => r.GetAllStudentsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(students);
 
-            // Act
             var result = await _handler.Handle(new GetStudentsQuery(), CancellationToken.None);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Empty(result);
             _repositoryMock.Verify(r => r.GetAllStudentsAsync(It.IsAny<CancellationToken>()), Times.Once);

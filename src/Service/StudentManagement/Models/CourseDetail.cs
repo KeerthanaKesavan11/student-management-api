@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace StudentManagement.API.Models;
+﻿namespace StudentManagement.API.Models;
 
 public partial class CourseDetail
 {
     public int EnrollmentId { get; set; }
-
     public int StudentId { get; set; }
 
     public int CourseId { get; set; }

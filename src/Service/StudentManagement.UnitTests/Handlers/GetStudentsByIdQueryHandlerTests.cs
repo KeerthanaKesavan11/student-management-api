@@ -1,17 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentValidation;
-using FluentValidation.Results;
+﻿using FluentValidation;
 using Moq;
 using StudentManagement.API.Exception;
 using StudentManagement.Domain.Handlers;
 using StudentManagement.Domain.Queries;
 using StudentManagement.Domain.Validators;
-using StudentManagement.Models.Models;
 using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Repository.Interfaces;
-using Xunit;
 
 namespace StudentManagement.UnitTests.Handlers
 {
@@ -29,7 +23,7 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_ValidRequest_ShouldReturnStudent()
         {
-            // Arrange
+           
             var query = new GetStudentsByIdQuery { StudentId = 1 };
             var studentModel = new StudentModel
             {
@@ -45,10 +39,10 @@ namespace StudentManagement.UnitTests.Handlers
             _repositoryMock.Setup(r => r.GetStudentsByIdAsync(query.StudentId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(studentModel);
 
-            // Act
+            
             var result = await _handler.Handle(query, CancellationToken.None);
 
-            // Assert
+            
             Assert.NotNull(result);
             Assert.Equal(studentModel.StudentId, result.StudentId);
             Assert.Equal(studentModel.StudentName, result.StudentName);
@@ -63,12 +57,11 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_InvalidRequest_ShouldThrowValidationException()
         {
-            // Arrange
+           
             var query = new GetStudentsByIdQuery { StudentId = 0 };
             var validator = new GetStudentsByIdQueryValidator();
             var results = await validator.ValidateAsync(query, CancellationToken.None);
 
-            // Act & Assert
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(query, CancellationToken.None));
             Assert.Equal(results.Errors, exception.Errors);
         }
@@ -76,13 +69,12 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_StudentNotFound_ShouldThrowNotFoundException()
         {
-            // Arrange
+            
             var query = new GetStudentsByIdQuery { StudentId = 1 };
 
             _repositoryMock.Setup(r => r.GetStudentsByIdAsync(query.StudentId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((StudentModel)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
     }

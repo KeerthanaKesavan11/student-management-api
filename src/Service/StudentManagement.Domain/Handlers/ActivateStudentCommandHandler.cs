@@ -1,11 +1,8 @@
 ﻿using MediatR;
 using StudentManagement.Domain.Command;
 using StudentManagement.Repository.Interfaces;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
-using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Models.Models;
 
 namespace StudentManagement.Domain.Handlers

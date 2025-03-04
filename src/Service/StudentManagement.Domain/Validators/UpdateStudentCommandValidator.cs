@@ -7,10 +7,7 @@ namespace StudentManagement.Domain.Validators
     {
         public UpdateStudentCommandValidator()
         {
-            //RuleFor(x => x.StudentId)
-            //    .GreaterThan(0).WithMessage("Please enter a valid Student ID.");
-
-            RuleFor(x => x.StudentName)
+           RuleFor(x => x.StudentName)
                 .NotEmpty().WithMessage("Student name is required.")
                 .Must(BeAValidName).WithMessage("Student name is required.");
 

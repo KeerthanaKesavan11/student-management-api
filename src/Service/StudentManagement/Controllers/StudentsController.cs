@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using StudentManagement.Domain.Queries;
 using FluentValidation;
 using StudentManagement.API.Exception;
-using Asp.Versioning;
 using StudentManagement.Domain.Command;
 
 namespace StudentManagement.API.Controllers
@@ -52,7 +51,7 @@ namespace StudentManagement.API.Controllers
             try
             {
                 var student = await _mediator.Send(command);
-                return CreatedAtAction(nameof(GetAllStudents), new { id = student.StudentId }, new { message = "Student record inserted successfully", student });
+                return CreatedAtAction(nameof(GetAllStudents), new { id = student.StudentId }, student );
             }
             catch (FluentValidation.ValidationException ex)
             {

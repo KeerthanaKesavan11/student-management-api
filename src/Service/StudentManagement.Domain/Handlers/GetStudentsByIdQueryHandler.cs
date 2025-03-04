@@ -3,16 +3,8 @@ using MediatR;
 using StudentManagement.API.Exception;
 using StudentManagement.Domain.Queries;
 using StudentManagement.Domain.Validators;
-using StudentManagement.Models.Models;
 using StudentManagement.Models.Models.DTOs;
-using StudentManagement.Repository;
 using StudentManagement.Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StudentManagement.Domain.Handlers
 {

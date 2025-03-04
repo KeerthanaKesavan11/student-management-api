@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using StudentManagement.Constants;
 
@@ -39,128 +37,128 @@ public partial class StudentManagementContext : DbContext
     {
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.CourseId).HasName(EntityConstants.Course.PrimaryKey);
+            entity.HasKey(e => e.CourseId).HasName(EntityConstants.Course_PrimaryKey);
 
-            entity.ToTable(EntityConstants.Course.TableName);
+            entity.ToTable(EntityConstants.Course_TableName);
 
             entity.Property(e => e.CourseId)
                 .UseIdentityAlwaysColumn()
-                .HasColumnName(EntityConstants.Course.CourseId);
+                .HasColumnName(EntityConstants.CourseId);
             entity.Property(e => e.CourseName)
                 .HasMaxLength(20)
-                .HasColumnName(EntityConstants.Course.CourseName);
+                .HasColumnName(EntityConstants.CourseName);
             entity.Property(e => e.Duration)
                 .HasMaxLength(20)
-                .HasColumnName(EntityConstants.Course.Duration);
-            entity.Property(e => e.Fees).HasColumnName(EntityConstants.Course.Fees);
+                .HasColumnName(EntityConstants.Duration);
+            entity.Property(e => e.Fees).HasColumnName(EntityConstants.Fees);
             entity.Property(e => e.Isactive)
                 .HasDefaultValue(true)
-                .HasColumnName(EntityConstants.Course.IsActive);
+                .HasColumnName(EntityConstants.IsActive);
         });
 
         modelBuilder.Entity<CourseDetail>(entity =>
         {
-            entity.HasKey(e => e.EnrollmentId).HasName(EntityConstants.CourseDetail.PrimaryKey);
+            entity.HasKey(e => e.EnrollmentId).HasName(EntityConstants.CourseDetail_PrimaryKey);
 
-            entity.ToTable(EntityConstants.CourseDetail.TableName);
+            entity.ToTable(EntityConstants.CourseDetail_TableName);
 
             entity.Property(e => e.EnrollmentId)
                 .UseIdentityAlwaysColumn()
-                .HasColumnName(EntityConstants.CourseDetail.EnrollmentId);
-            entity.Property(e => e.CourseId).HasColumnName(EntityConstants.CourseDetail.CourseId);
-            entity.Property(e => e.EnrollmentDate).HasColumnName(EntityConstants.CourseDetail.EnrollmentDate);
+                .HasColumnName(EntityConstants.EnrollmentId);
+            entity.Property(e => e.CourseId).HasColumnName(EntityConstants.CourseId);
+            entity.Property(e => e.EnrollmentDate).HasColumnName(EntityConstants.EnrollmentDate);
             entity.Property(e => e.Grade)
                 .HasMaxLength(1)
-                .HasColumnName(EntityConstants.CourseDetail.Grade);
+                .HasColumnName(EntityConstants.Grade);
             entity.Property(e => e.Isactive)
                 .HasDefaultValue(true)
-                .HasColumnName(EntityConstants.CourseDetail.IsActive);
-            entity.Property(e => e.StudentId).HasColumnName(EntityConstants.CourseDetail.StudentId);
+                .HasColumnName(EntityConstants.IsActive);
+            entity.Property(e => e.StudentId).HasColumnName(EntityConstants.StudentId);
 
             entity.HasOne(d => d.Course).WithMany(p => p.CourseDetails)
                 .HasForeignKey(d => d.CourseId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName(EntityConstants.CourseDetail.CourseForeignKey);
+                .HasConstraintName(EntityConstants.CourseForeignKey);
 
             entity.HasOne(d => d.GradeNavigation).WithMany(p => p.CourseDetails)
                 .HasPrincipalKey(p => p.Grade1)
                 .HasForeignKey(d => d.Grade)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName(EntityConstants.CourseDetail.GradeForeignKey);
+                .HasConstraintName(EntityConstants.GradeForeignKey);
 
             entity.HasOne(d => d.Student).WithMany(p => p.CourseDetails)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName(EntityConstants.CourseDetail.StudentForeignKey);
+                .HasConstraintName(EntityConstants.StudentForeignKey);
         });
         modelBuilder.Entity<FeesDetail>(entity =>
         {
-            entity.HasKey(e => e.FeesDetailId).HasName(EntityConstants.FeesDetail.PrimaryKey);
+            entity.HasKey(e => e.FeesDetailId).HasName(EntityConstants.FeesDetail_PrimaryKey);
 
-            entity.ToTable(EntityConstants.FeesDetail.TableName);
+            entity.ToTable(EntityConstants.FeesDetail_TableName);
 
             entity.Property(e => e.FeesDetailId)
                 .UseIdentityAlwaysColumn()
-                .HasColumnName(EntityConstants.FeesDetail.FeesDetailId);
-            entity.Property(e => e.AmountPaid).HasColumnName(EntityConstants.FeesDetail.AmountPaid);
-            entity.Property(e => e.EnrollmentId).HasColumnName(EntityConstants.FeesDetail.EnrollmentId);
+                .HasColumnName(EntityConstants.FeesDetailId);
+            entity.Property(e => e.AmountPaid).HasColumnName(EntityConstants.AmountPaid);
+            entity.Property(e => e.EnrollmentId).HasColumnName(EntityConstants.EnrollmentId);
             entity.Property(e => e.Isactive)
                 .HasDefaultValue(true)
-                .HasColumnName(EntityConstants.FeesDetail.IsActive);
+                .HasColumnName(EntityConstants.IsActive);
             entity.Property(e => e.PaymentStatus)
                 .HasMaxLength(20)
-                .HasColumnName(EntityConstants.FeesDetail.PaymentStatus);
+                .HasColumnName(EntityConstants.PaymentStatus);
 
             entity.HasOne(d => d.Enrollment).WithMany(p => p.FeesDetails)
                 .HasForeignKey(d => d.EnrollmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName(EntityConstants.FeesDetail.EnrollmentForeignKey);
+                .HasConstraintName(EntityConstants.EnrollmentForeignKey);
         });
 
         modelBuilder.Entity<Grade>(entity =>
         {
-            entity.HasKey(e => e.GradeId).HasName(EntityConstants.Grade.PrimaryKey);
+            entity.HasKey(e => e.GradeId).HasName(EntityConstants.Grade_PrimaryKey);
 
-            entity.ToTable(EntityConstants.Grade.TableName);
+            entity.ToTable(EntityConstants.Grade_TableName);
 
-            entity.HasIndex(e => e.Grade1, EntityConstants.Grade.GradeKey).IsUnique();
+            entity.HasIndex(e => e.Grade1, EntityConstants.GradeKey).IsUnique();
 
             entity.Property(e => e.GradeId)
                 .UseIdentityAlwaysColumn()
-                .HasColumnName(EntityConstants.Grade.GradeId);
+                .HasColumnName(EntityConstants.GradeId);
             entity.Property(e => e.Grade1)
                 .HasMaxLength(1)
-                .HasColumnName(EntityConstants.Grade.Grade1);
+                .HasColumnName(EntityConstants.Grade);
             entity.Property(e => e.ScoreRange)
                 .HasMaxLength(20)
-                .HasColumnName(EntityConstants.Grade.ScoreRange);
+                .HasColumnName(EntityConstants.ScoreRange);
         });
 
         modelBuilder.Entity<Student>(entity =>
         {
-            entity.HasKey(e => e.StudentId).HasName(EntityConstants.Student.PrimaryKey);
+            entity.HasKey(e => e.StudentId).HasName(EntityConstants.Student_PrimaryKey);
 
-            entity.ToTable(EntityConstants.Student.TableName);
+            entity.ToTable(EntityConstants.Student_TableName);
 
             entity.Property(e => e.StudentId)
                 .UseIdentityAlwaysColumn()
-                .HasColumnName(EntityConstants.Student.StudentId);
+                .HasColumnName(EntityConstants.StudentId);
             entity.Property(e => e.Address)
                 .HasMaxLength(200)
-                .HasColumnName(EntityConstants.Student.Address);
-            entity.Property(e => e.Dob).HasColumnName(EntityConstants.Student.Dob);
+                .HasColumnName(EntityConstants.Address);
+            entity.Property(e => e.Dob).HasColumnName(EntityConstants.Dob);
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
-                .HasColumnName(EntityConstants.Student.Email);
+                .HasColumnName(EntityConstants.Email);
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
-                .HasColumnName(EntityConstants.Student.IsActive);
+                .HasColumnName(EntityConstants.IsActive);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
-                .HasColumnName(EntityConstants.Student.PhoneNumber);
+                .HasColumnName(EntityConstants.PhoneNumber);
             entity.Property(e => e.StudentName)
                 .HasMaxLength(50)
-                .HasColumnName(EntityConstants.Student.StudentName);
+                .HasColumnName(EntityConstants.StudentName);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -7,4 +7,3 @@ namespace StudentManagement.Domain.Command
         public int StudentId { get; set; }
     }
 }
-

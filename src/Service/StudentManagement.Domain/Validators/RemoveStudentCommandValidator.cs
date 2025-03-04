@@ -12,4 +12,3 @@ namespace StudentManagement.Domain.Validators
         }
     }
 }
-
