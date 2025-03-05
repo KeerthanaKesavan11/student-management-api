@@ -3,37 +3,50 @@ using StudentManagement.Domain.Command;
 using StudentManagement.Repository.Interfaces;
 using FluentValidation;
 using FluentValidation.Results;
+using StudentManagement.Domain.Validators;
+using StudentManagement.Models.Models;
 
 namespace StudentManagement.Domain.Handlers
 {
-    public class RemoveStudentCommandHandler : IRequestHandler<RemoveStudentCommand, bool>
+    public class RemoveStudentCommandHandler : IRequestHandler<RemoveStudentCommand, (bool Success, string? ErrorMessage)>
     {
         private readonly IStudentRepository _repository;
-        private readonly IValidator<RemoveStudentCommand> _validator;
-
-        public RemoveStudentCommandHandler(IStudentRepository repository, IValidator<RemoveStudentCommand> validator)
+        public RemoveStudentCommandHandler(IStudentRepository repository)
         {
             _repository = repository;
-            _validator = validator;
         }
 
-        public async Task<bool> Handle(RemoveStudentCommand request, CancellationToken cancellationToken)
+        public async Task<(bool Success, string? ErrorMessage)> Handle(RemoveStudentCommand request, CancellationToken cancellationToken)
         {
-            ValidationResult result = await _validator.ValidateAsync(request, cancellationToken);
+            var validator = new RemoveStudentCommandValidator();
+            var result = await validator.ValidateAsync(request, cancellationToken);
             if (!result.IsValid)
             {
                 throw new ValidationException(result.Errors);
             }
 
-            var student = await _repository.GetStudentsByIdAsync(request.StudentId, cancellationToken);
+            var student = await _repository.GetStudentAsync(request.StudentId, cancellationToken);
             if (student == null)
             {
-                throw new ValidationException("Student does not exist.");
+                return (false, "Student does not exist.");
+            }
+            if (student.IsActive == false)
+            {
+                return (false, "Student record is already in InActive status");
             }
 
-            student.IsActive = false;
-            await _repository.DeleteStudentAsync(request.StudentId, cancellationToken);
-            return true;
+            var updatedStudent = new Student
+            {
+                StudentId = student.StudentId,
+                StudentName = student.StudentName,
+                Dob = student.Dob,
+                Email = student.Email,
+                PhoneNumber = student.PhoneNumber,
+                Address = student.Address,
+                IsActive = false
+            };
+            await _repository.DeleteStudentAsync(updatedStudent, cancellationToken);
+            return (true,null);
         }
     }
 }

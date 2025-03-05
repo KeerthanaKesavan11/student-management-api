@@ -5,10 +5,11 @@ using FluentValidation;
 using FluentValidation.Results;
 using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Models.Models;
+using StudentManagement.Domain.Validators;
 
 namespace StudentManagement.Domain.Handlers
 {
-    public class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, StudentModel>
+    public class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, (bool Success, string? ErrorMessage, StudentModel? UpdatedStudent)>
     {
         private readonly IStudentRepository _repository;
         private readonly IValidator<UpdateStudentCommand> _validator;
@@ -19,18 +20,24 @@ namespace StudentManagement.Domain.Handlers
             _validator = validator;
         }
 
-        public async Task<StudentModel> Handle(UpdateStudentCommand request, CancellationToken cancellationToken)
+        public async Task<(bool Success, string? ErrorMessage, StudentModel? UpdatedStudent)> Handle(UpdateStudentCommand request, CancellationToken cancellationToken)
         {
+            var validator = new UpdateStudentCommandValidator();
             ValidationResult result = await _validator.ValidateAsync(request, cancellationToken);
             if (!result.IsValid)
             {
                 throw new ValidationException(result.Errors);
             }
 
+
             var student = await _repository.GetStudentAsync(request.StudentId, cancellationToken);
             if (student == null)
             {
-                throw new ValidationException("Student does not exist.");
+                return (false, "Student does not exist.", null);
+            }
+            if (student.IsActive == false)
+            {
+                return (false, "Student record is in Inactive status", null);
             }
 
             var updatedStudent = new Student
@@ -46,16 +53,17 @@ namespace StudentManagement.Domain.Handlers
 
             await _repository.UpdateStudentAsync(updatedStudent, cancellationToken);
 
-            return new StudentModel
+            var updatedStudentModel = new StudentModel
             {
-                StudentId = student.StudentId,
-                StudentName = student.StudentName,
-                Dob = student.Dob,
-                Email = student.Email,
-                PhoneNumber = student.PhoneNumber,
-                Address = student.Address,
-      
+                StudentId = updatedStudent.StudentId,
+                StudentName = updatedStudent.StudentName,
+                Dob = updatedStudent.Dob,
+                Email = updatedStudent.Email,
+                PhoneNumber = updatedStudent.PhoneNumber,
+                Address = updatedStudent.Address,
             };
+
+            return (true, null, updatedStudentModel);
         }
     }
 }

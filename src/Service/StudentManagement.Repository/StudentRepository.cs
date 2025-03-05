@@ -70,7 +70,8 @@ namespace StudentManagement.Repository
                 Dob = student.Dob,
                 Email = student.Email,
                 PhoneNumber = student.PhoneNumber,
-                Address = student.Address
+                Address = student.Address,
+                IsActive = student.IsActive ?? false
             };
         }
 
@@ -91,23 +92,12 @@ namespace StudentManagement.Repository
             _context.Students.Update(student);
             await _context.SaveChangesAsync(cancellationToken);
         }
-        public async Task DeleteStudentAsync(int studentId, CancellationToken cancellationToken)
+        public async Task DeleteStudentAsync(Student student, CancellationToken cancellationToken)
         {
-            var student = await _context.Students.FindAsync(new object[] { studentId }, cancellationToken);
-            if (student == null)
-            {
-                throw new ArgumentException("Student not found");
-            }
-
-            student.IsActive = false;
             _context.Students.Update(student);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public void Attach(Student student)
-        {
-            _context.Students.Attach(student);
-        }
     }
 
 

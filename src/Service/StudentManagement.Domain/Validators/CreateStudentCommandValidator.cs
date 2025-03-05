@@ -8,8 +8,7 @@ namespace StudentManagement.Domain.Validators
         public CreateStudentCommandValidator()
         {
             RuleFor(x => x.StudentName)
-                .NotEmpty().WithMessage("Student name is required.")
-                .Must(BeAValidName).WithMessage("Student name is required.");
+                .NotEmpty().WithMessage("Student name is required.");               
 
             RuleFor(x => x.Dob)
                 .NotEmpty().WithMessage("Date of birth is required.")
@@ -18,9 +17,8 @@ namespace StudentManagement.Domain.Validators
 
             RuleFor(x => x.Email)
                 .EmailAddress().WithMessage("Valid email is required")
-                .NotEmpty().WithMessage("Email is required.")
-                .Must(BeAValidEmail).WithMessage("Email is required.");
-                   
+                .NotEmpty().WithMessage("Email is required.");
+                                   
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.")
                 .Must(BeAValidPhoneNumber).WithMessage("Phone number is required.");
@@ -28,11 +26,6 @@ namespace StudentManagement.Domain.Validators
             RuleFor(x => x.Address)
                 .NotEmpty().WithMessage("Address is required.")
                 .Must(BeAValidAddress).WithMessage("Address is required.");
-        }
-
-        private bool BeAValidName(string name)
-        {
-            return !string.Equals(name, "string", StringComparison.OrdinalIgnoreCase);
         }
 
         private bool BeAValidDate(DateOnly date)
@@ -55,9 +48,5 @@ namespace StudentManagement.Domain.Validators
             return !string.Equals(address, "string", StringComparison.OrdinalIgnoreCase);
         }
 
-        private bool BeAValidEmail(string email)
-        {
-            return !string.Equals(email, "string", StringComparison.OrdinalIgnoreCase);
-        }
     }
 }

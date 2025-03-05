@@ -14,7 +14,7 @@ public partial class Student
 
     public string Address { get; set; } = null!;
 
-    public bool? Isactive { get; set; }
+    public bool IsActive { get; set; }
 
     public virtual ICollection<CourseDetail> CourseDetails { get; set; } = new List<CourseDetail>();
 }

@@ -1,35 +1,39 @@
 ﻿using MediatR;
 using StudentManagement.Domain.Command;
 using StudentManagement.Repository.Interfaces;
-using FluentValidation;
-using FluentValidation.Results;
 using StudentManagement.Models.Models;
+using StudentManagement.Domain.Validators;
+using FluentValidation;
 
 namespace StudentManagement.Domain.Handlers
 {
-    public class ActivateStudentCommandHandler : IRequestHandler<ActivateStudentCommand, bool>
+    public class ActivateStudentCommandHandler : IRequestHandler<ActivateStudentCommand, (bool Success, string? ErrorMessage)>
     {
         private readonly IStudentRepository _repository;
-        private readonly IValidator<ActivateStudentCommand> _validator;
 
-        public ActivateStudentCommandHandler(IStudentRepository repository, IValidator<ActivateStudentCommand> validator)
+        public ActivateStudentCommandHandler(IStudentRepository repository, IValidator<ActivateStudentCommand> @object)
         {
             _repository = repository;
-            _validator = validator;
         }
 
-        public async Task<bool> Handle(ActivateStudentCommand request, CancellationToken cancellationToken)
+        public async Task<(bool Success, string? ErrorMessage)> Handle(ActivateStudentCommand request, CancellationToken cancellationToken)
         {
-            ValidationResult result = await _validator.ValidateAsync(request, cancellationToken);
+            var validator = new ActivateStudentCommandValidator();
+            var result = await validator.ValidateAsync(request, cancellationToken);
             if (!result.IsValid)
             {
                 throw new ValidationException(result.Errors);
             }
 
+
             var student = await _repository.GetStudentAsync(request.StudentId, cancellationToken);
             if (student == null)
             {
-                throw new ValidationException("Student does not exist.");
+                return (false, "Student does not exist.");
+            }
+            if (student.IsActive == true)
+            {
+                return (false, "Student record is already in active status");
             }
 
             var updatedStudent = new Student
@@ -40,11 +44,11 @@ namespace StudentManagement.Domain.Handlers
                 Email = student.Email,
                 PhoneNumber = student.PhoneNumber,
                 Address = student.Address,
-                IsActive = true 
+                IsActive = true
             };
 
             await _repository.ActivateStudentAsync(updatedStudent, cancellationToken);
-            return true;
+            return (true, null);
         }
     }
 }

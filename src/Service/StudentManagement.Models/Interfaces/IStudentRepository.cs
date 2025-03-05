@@ -10,8 +10,7 @@ namespace StudentManagement.Repository.Interfaces
         Task AddStudentAsync(Student student, CancellationToken cancellationToken);
         Task UpdateStudentAsync(Student student, CancellationToken cancellationToken);
         Task ActivateStudentAsync(Student student, CancellationToken cancellationToken);
-        Task DeleteStudentAsync(int studentId, CancellationToken cancellationToken);
         Task<StudentModel?> GetStudentAsync(int studentId, CancellationToken cancellationToken);
-        void Attach(Student student);
+        Task DeleteStudentAsync(Student updatedStudent, CancellationToken cancellationToken);
     }
 }
