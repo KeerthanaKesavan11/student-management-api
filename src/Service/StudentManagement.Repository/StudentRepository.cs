@@ -53,10 +53,8 @@ namespace StudentManagement.Repository
 
         public async Task<StudentModel?> GetStudentAsync(int studentId, CancellationToken cancellationToken)
         {
-            var student = await _context.Students
-                .AsNoTracking()
-                .FirstAsync(s => s.StudentId == studentId);
-             
+            var student = await _context.Students.FindAsync(studentId);
+
             if (student == null)
             {
                 return null;
@@ -73,6 +71,8 @@ namespace StudentManagement.Repository
                 IsActive = student.IsActive ?? false
             };
         }
+
+
 
         public async Task AddStudentAsync(Student student, CancellationToken cancellationToken)
         {

@@ -53,7 +53,7 @@ namespace StudentManagement.API.Controllers
                 var student = await _mediator.Send(command);
                 return CreatedAtAction(nameof(GetAllStudents), new { id = student.StudentId }, student );
             }
-            catch (FluentValidation.ValidationException ex)
+            catch (ValidationException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -86,7 +86,7 @@ namespace StudentManagement.API.Controllers
                 await _mediator.Send(command);
                 return Ok("Student record activated successfully.");
             }
-            catch (FluentValidation.ValidationException ex)
+            catch (ValidationException ex)
             {
                 return BadRequest(ex.Message);
             }

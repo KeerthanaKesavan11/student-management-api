@@ -1,5 +1,7 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StudentManagement.API.Exception;
 using StudentManagement.Domain.Queries;
 
 namespace StudentManagement.API.Controllers
@@ -26,13 +28,22 @@ namespace StudentManagement.API.Controllers
         [HttpGet("{studentId}")]
         public async Task<IActionResult> GetEnrollmentById(int studentId)
         {
-            var query = new GetEnrollmentByIdQuery { StudentId = studentId };
-            var enrollment = await _mediator.Send(query);
-            if (enrollment == null)
+            try
             {
-                return NotFound("Enrollment not found.");
+                var query = new GetEnrollmentByIdQuery { StudentId = studentId };
+                var enrollment = await _mediator.Send(query);
+                return Ok(enrollment);
             }
-            return Ok(enrollment);
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+
+
         }
     }
 }
