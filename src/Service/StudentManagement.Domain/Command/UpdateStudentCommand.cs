@@ -1,9 +1,7 @@
 ﻿using MediatR;
-using StudentManagement.Models.Models.DTOs;
-
 namespace StudentManagement.Domain.Command
 {
-    public class UpdateStudentCommand : IRequest<(bool Success, string? ErrorMessage ,StudentModel? UpdatedStudent)>
+    public class UpdateStudentCommand : IRequest
     {
        public int StudentId { get; set; }
         public string StudentName { get; set; } = null!;

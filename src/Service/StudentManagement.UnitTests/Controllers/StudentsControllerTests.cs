@@ -6,7 +6,7 @@ using StudentManagement.Domain.Queries;
 using StudentManagement.Domain.Command;
 using StudentManagement.API.Exception;
 using StudentManagement.Models.Models.DTOs;
-using Xunit;
+using FluentValidation;
 
 namespace StudentManagement.Tests.Controllers
 {
@@ -56,9 +56,7 @@ namespace StudentManagement.Tests.Controllers
             var student = new StudentModel { StudentId = 1, StudentName = "John Doe" };
             var command = new CreateStudentCommand { StudentName = "John Doe" };
             _mediatorMock.Setup(m => m.Send(It.IsAny<CreateStudentCommand>(), default)).ReturnsAsync(student);
-
             var result = await _controller.CreateStudent(command);
-
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
             Assert.Equal("GetAllStudents", createdAtActionResult.ActionName);
             Assert.Equal(student.StudentId, createdAtActionResult.RouteValues["id"]);
@@ -66,83 +64,78 @@ namespace StudentManagement.Tests.Controllers
         }
 
         [Fact]
+        public async Task CreateStudent_ReturnsBadRequest_WhenValidationFails()
+        {
+            var command = new CreateStudentCommand { StudentName = "John Doe" };
+            _mediatorMock.Setup(m => m.Send(It.IsAny<CreateStudentCommand>(), default)).ThrowsAsync(new ValidationException("Validation failed"));
+            var result = await _controller.CreateStudent(command);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Validation failed", badRequestResult.Value);
+        }
+
+        [Fact]
         public async Task UpdateStudent_ReturnsOkResult_WhenUpdateIsSuccessful()
         {
-            var updatedStudent = new StudentModel { StudentId = 1, StudentName = "John Doe" };
             var command = new UpdateStudentCommand { StudentId = 1, StudentName = "John Doe" };
-            _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateStudentCommand>(), default)).ReturnsAsync((true, null, updatedStudent));
-
+            _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateStudentCommand>(), default));
             var result = await _controller.UpdateStudent(1, command);
-
             var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(updatedStudent, okResult.Value);
+            Assert.Equal("Student record updated successfully.", okResult.Value);
         }
 
         [Fact]
         public async Task UpdateStudent_ReturnsBadRequest_WhenStudentIdMismatch()
         {
             var command = new UpdateStudentCommand { StudentId = 2, StudentName = "John Doe" };
-
             var result = await _controller.UpdateStudent(1, command);
-
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Student ID mismatch.", badRequestResult.Value);
         }
 
         [Fact]
-        public async Task UpdateStudent_ReturnsBadRequest_WhenUpdateFails()
+        public async Task UpdateStudent_ReturnsBadRequest_WhenValidationFails()
         {
             var command = new UpdateStudentCommand { StudentId = 1, StudentName = "John Doe" };
-            _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateStudentCommand>(), default)).ReturnsAsync((false, "Student does not exist.", null));
-
+            _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateStudentCommand>(), default)).ThrowsAsync(new ValidationException("Validation failed"));
             var result = await _controller.UpdateStudent(1, command);
-
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Student does not exist.", badRequestResult.Value);
+            Assert.Equal("Validation failed", badRequestResult.Value);
         }
 
         [Fact]
         public async Task ActivateStudent_ReturnsOkResult_WhenActivationIsSuccessful()
         {
-            _mediatorMock.Setup(m => m.Send(It.IsAny<ActivateStudentCommand>(), default)).ReturnsAsync((true, null));
-
+            _mediatorMock.Setup(m => m.Send(It.IsAny<ActivateStudentCommand>(), default));
             var result = await _controller.ActivateStudent(1);
-
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal("Student record activated successfully.", okResult.Value);
         }
 
         [Fact]
-        public async Task ActivateStudent_ReturnsBadRequest_WhenActivationFails()
+        public async Task ActivateStudent_ReturnsBadRequest_WhenValidationFails()
         {
-            _mediatorMock.Setup(m => m.Send(It.IsAny<ActivateStudentCommand>(), default)).ReturnsAsync((false, "Student not found."));
-
+            _mediatorMock.Setup(m => m.Send(It.IsAny<ActivateStudentCommand>(), default)).ThrowsAsync(new ValidationException("Validation failed"));
             var result = await _controller.ActivateStudent(1);
-
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Student not found.", badRequestResult.Value);
+            Assert.Equal("Validation failed", badRequestResult.Value);
         }
 
         [Fact]
         public async Task RemoveStudent_ReturnsOkResult_WhenDeletionIsSuccessful()
         {
-            _mediatorMock.Setup(m => m.Send(It.IsAny<RemoveStudentCommand>(), default)).ReturnsAsync((true, null));
-
+            _mediatorMock.Setup(m => m.Send(It.IsAny<RemoveStudentCommand>(), default));
             var result = await _controller.RemoveStudent(1);
-
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal("Student record deleted successfully.", okResult.Value);
         }
 
         [Fact]
-        public async Task RemoveStudent_ReturnsBadRequest_WhenDeletionFails()
+        public async Task RemoveStudent_ReturnsBadRequest_WhenValidationFails()
         {
-            _mediatorMock.Setup(m => m.Send(It.IsAny<RemoveStudentCommand>(), default)).ReturnsAsync((false, "Student not found."));
-
+            _mediatorMock.Setup(m => m.Send(It.IsAny<RemoveStudentCommand>(), default)).ThrowsAsync(new ValidationException("Validation failed"));
             var result = await _controller.RemoveStudent(1);
-
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Student not found.", badRequestResult.Value);
+            Assert.Equal("Validation failed", badRequestResult.Value);
         }
     }
 }

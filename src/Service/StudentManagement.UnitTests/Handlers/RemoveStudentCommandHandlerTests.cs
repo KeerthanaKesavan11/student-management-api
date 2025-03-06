@@ -4,7 +4,6 @@ using Moq;
 using StudentManagement.Domain.Command;
 using StudentManagement.Domain.Handlers;
 using StudentManagement.Models.Models;
-using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Repository.Interfaces;
 using Xunit;
 
@@ -25,7 +24,7 @@ namespace StudentManagement.UnitTests.Handlers
         public async Task Handle_ValidRequest_ShouldRemoveStudent()
         {
             var command = new RemoveStudentCommand { StudentId = 1 };
-            var studentModel = new StudentModel
+            var student = new Student
             {
                 StudentId = 1,
                 StudentName = "John Doe",
@@ -36,16 +35,13 @@ namespace StudentManagement.UnitTests.Handlers
                 IsActive = true
             };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(studentModel);
+            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
             _repositoryMock.Setup(r => r.DeleteStudentAsync(It.IsAny<Student>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
-            var result = await _handler.Handle(command, CancellationToken.None);
+            await _handler.Handle(command, CancellationToken.None);
 
-            Assert.True(result.Success);
-            Assert.Null(result.ErrorMessage);
-            _repositoryMock.Verify(r => r.DeleteStudentAsync(It.Is<Student>(s => s.IsActive == false), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(r => r.DeleteStudentAsync(It.Is<Student>(s => s.StudentId == command.StudentId), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -65,24 +61,22 @@ namespace StudentManagement.UnitTests.Handlers
         }
 
         [Fact]
-        public async Task Handle_StudentNotFound_ShouldReturnErrorMessage()
+        public async Task Handle_StudentNotFound_ShouldThrowValidationException()
         {
             var command = new RemoveStudentCommand { StudentId = 1 };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((StudentModel?)null);
+            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
+               
+            var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
-            var result = await _handler.Handle(command, CancellationToken.None);
-
-            Assert.False(result.Success);
-            Assert.Equal("Student does not exist.", result.ErrorMessage);
+            Assert.Contains(exception.Errors, e => e.PropertyName == nameof(command.StudentId) && e.ErrorMessage == "Student does not exist.");
         }
 
         [Fact]
-        public async Task Handle_StudentAlreadyInactive_ShouldReturnErrorMessage()
+        public async Task Handle_StudentAlreadyInactive_ShouldThrowValidationException()
         {
             var command = new RemoveStudentCommand { StudentId = 1 };
-            var studentModel = new StudentModel
+            var student = new Student
             {
                 StudentId = 1,
                 StudentName = "John Doe",
@@ -93,13 +87,11 @@ namespace StudentManagement.UnitTests.Handlers
                 IsActive = false
             };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(studentModel);
+            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
+               
+            var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
-            var result = await _handler.Handle(command, CancellationToken.None);
-
-            Assert.False(result.Success);
-            Assert.Equal("Student record is already in InActive status", result.ErrorMessage);
+            Assert.Contains(exception.Errors, e => e.PropertyName == nameof(command.StudentId) && e.ErrorMessage == "Student record is already in InActive status");
         }
     }
 }

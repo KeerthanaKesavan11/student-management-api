@@ -55,9 +55,8 @@ namespace StudentManagement.Repository
         {
             var student = await _context.Students
                 .AsNoTracking()
-                .Where(s => s.StudentId == studentId)
-                .FirstOrDefaultAsync(cancellationToken);
-
+                .FirstAsync(s => s.StudentId == studentId);
+             
             if (student == null)
             {
                 return null;

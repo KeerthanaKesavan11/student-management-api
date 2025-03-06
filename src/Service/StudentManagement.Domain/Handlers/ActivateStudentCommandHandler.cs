@@ -4,19 +4,20 @@ using StudentManagement.Repository.Interfaces;
 using StudentManagement.Models.Models;
 using StudentManagement.Domain.Validators;
 using FluentValidation;
+using StudentManagement.Domain.Extensions;
 
 namespace StudentManagement.Domain.Handlers
 {
-    public class ActivateStudentCommandHandler : IRequestHandler<ActivateStudentCommand, (bool Success, string? ErrorMessage)>
+    public class ActivateStudentCommandHandler : IRequestHandler<ActivateStudentCommand>
     {
         private readonly IStudentRepository _repository;
 
-        public ActivateStudentCommandHandler(IStudentRepository repository, IValidator<ActivateStudentCommand> @object)
+        public ActivateStudentCommandHandler(IStudentRepository repository)
         {
             _repository = repository;
         }
 
-        public async Task<(bool Success, string? ErrorMessage)> Handle(ActivateStudentCommand request, CancellationToken cancellationToken)
+        public async Task Handle(ActivateStudentCommand request, CancellationToken cancellationToken)
         {
             var validator = new ActivateStudentCommandValidator();
             var result = await validator.ValidateAsync(request, cancellationToken);
@@ -25,30 +26,25 @@ namespace StudentManagement.Domain.Handlers
                 throw new ValidationException(result.Errors);
             }
 
-
             var student = await _repository.GetStudentAsync(request.StudentId, cancellationToken);
-            if (student == null)
-            {
-                return (false, "Student does not exist.");
-            }
-            if (student.IsActive == true)
-            {
-                return (false, "Student record is already in active status");
-            }
+            ValidationExtensions.ThrowIfInvalid(student == null, nameof(request.StudentId), "Student does not exist.");
+            ValidationExtensions.ThrowIfInvalid(student?.IsActive == true, nameof(request.StudentId), "Student record is already in active status");
 
-            var updatedStudent = new Student
+            if (student != null)
             {
-                StudentId = student.StudentId,
-                StudentName = student.StudentName,
-                Dob = student.Dob,
-                Email = student.Email,
-                PhoneNumber = student.PhoneNumber,
-                Address = student.Address,
-                IsActive = true
-            };
+                var updatedStudent = new Student
+                {
+                    StudentId = student.StudentId,
+                    StudentName = student.StudentName,
+                    Dob = student.Dob,
+                    Email = student.Email,
+                    PhoneNumber = student.PhoneNumber,
+                    Address = student.Address,
+                    IsActive = true
+                };
 
-            await _repository.ActivateStudentAsync(updatedStudent, cancellationToken);
-            return (true, null);
+                await _repository.ActivateStudentAsync(updatedStudent, cancellationToken);
+            }
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace StudentManagement.Domain.Command
 {
-    public class RemoveStudentCommand : IRequest<(bool Success, string? ErrorMessage)>
+    public class RemoveStudentCommand : IRequest
     {
         public int StudentId { get; set; }
     }

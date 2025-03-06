@@ -48,9 +48,5 @@ namespace StudentManagement.Domain.Validators
             return !string.Equals(address, "string", StringComparison.OrdinalIgnoreCase);
         }
 
-        private bool BeAValidEmail(string email)
-        {
-            return !string.Equals(email, "string", StringComparison.OrdinalIgnoreCase);
-        }
     }
 }

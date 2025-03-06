@@ -36,7 +36,7 @@ namespace StudentManagement.API.Controllers
                 var students = await _mediator.Send(query);
                 return Ok(students);
             }
-            catch(FluentValidation.ValidationException ex)
+            catch(ValidationException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -66,44 +66,46 @@ namespace StudentManagement.API.Controllers
             {
                 return BadRequest("Student ID mismatch.");
             }
-            var result = await _mediator.Send(command);
-            if (!result.Success)
+            try
             {
-                return BadRequest(result.ErrorMessage);
+                await _mediator.Send(command);
+                return Ok("Student record updated successfully.");
             }
-            return Ok(result.UpdatedStudent);
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPatch("{studentId}/activate")]
         public async Task<IActionResult> ActivateStudent(int studentId)
         {
-            var command = new ActivateStudentCommand { StudentId = studentId };
-            var result = await _mediator.Send(command);
-
-            if (result.Success)
+            try
             {
+                var command = new ActivateStudentCommand { StudentId = studentId };
+                await _mediator.Send(command);
                 return Ok("Student record activated successfully.");
             }
-            else
+            catch (FluentValidation.ValidationException ex)
             {
-                return BadRequest(result.ErrorMessage);
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpDelete("{studentId}")]
         public async Task<IActionResult> RemoveStudent(int studentId)
         {
-            var command = new RemoveStudentCommand { StudentId = studentId };
-            var result = await _mediator.Send(command);
-
-            if (result.Success)
+            try
             {
+                var command = new RemoveStudentCommand { StudentId = studentId };
+                await _mediator.Send(command);
                 return Ok("Student record deleted successfully.");
             }
-            else
+            catch (ValidationException ex)
             {
-                return BadRequest(result.ErrorMessage);
+                return BadRequest(ex.Message);
             }
         }
+
     }
 }

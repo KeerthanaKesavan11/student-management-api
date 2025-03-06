@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using StudentManagement.API.Exception;
 using StudentManagement.Domain.Queries;
+using StudentManagement.Domain.Validators;
 using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Repository.Interfaces;
 
@@ -19,6 +21,12 @@ namespace StudentManagement.Domain.Handlers
 
         public async Task<List<EnrollmentModel>> Handle(GetEnrollmentByIdQuery request, CancellationToken cancellationToken)
         {
+            var validator = new GetEnrollmentByIdQueryValidator();
+            var results = await validator.ValidateAsync(request, cancellationToken);
+            if (!results.IsValid)
+            {
+                throw new ValidationException(results.Errors);
+            }
             var student = await _studentRepository.GetStudentsByIdAsync(request.StudentId, cancellationToken);
             if (student == null )
             {
