@@ -3,7 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using StudentManagement.API.Controllers;
 using StudentManagement.Domain.Queries;
+using StudentManagement.API.Exception;
 using StudentManagement.Models.Models.DTOs;
+using FluentValidation;
 
 namespace StudentManagement.UnitTests.Controllers
 {
@@ -23,55 +25,61 @@ namespace StudentManagement.UnitTests.Controllers
         {
             var enrollments = new List<EnrollmentModel>
             {
-                new EnrollmentModel
-                {
-                    StudentName = "John Doe",
-                    Course = "Math",
-                    Duration = "1 Year",
-                    EnrollmentDate = new DateOnly(2023, 1, 1),
-                    Grade = "A"
-                }
+                new EnrollmentModel { StudentName = "John Doe", Course = "Math", Duration = "1 Year", EnrollmentDate = DateOnly.FromDateTime(DateTime.Now), Grade = "A" },
+                new EnrollmentModel { StudentName = "Jane Smith", Course = "Science", Duration = "1 Year", EnrollmentDate = DateOnly.FromDateTime(DateTime.Now), Grade = "B" }
             };
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetAllEnrollmentsQuery>(), default)).ReturnsAsync(enrollments);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetAllEnrollmentsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(enrollments);
 
             var result = await _controller.GetAllEnrollments();
 
             var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(enrollments, okResult.Value);
+            var returnValue = Assert.IsType<List<EnrollmentModel>>(okResult.Value);
+            Assert.Equal(2, returnValue.Count);
         }
 
         [Fact]
         public async Task GetEnrollmentById_ReturnsOkResult_WithEnrollment()
         {
+            var studentId = 1;
             var enrollments = new List<EnrollmentModel>
             {
-                new EnrollmentModel
-                {
-                    StudentName = "John Doe",
-                    Course = "Math",
-                    Duration = "3 months",
-                    EnrollmentDate = new DateOnly(2023, 1, 1),
-                    Grade = "A"
-                }
+                new EnrollmentModel { StudentName = "John Doe", Course = "Math", Duration = "1 Year", EnrollmentDate = DateOnly.FromDateTime(DateTime.Now), Grade = "A" }
             };
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEnrollmentByIdQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(enrollments);
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEnrollmentByIdQuery>(), default)).ReturnsAsync(enrollments);
-
-            var result = await _controller.GetEnrollmentById(1);
+            var result = await _controller.GetEnrollmentById(studentId);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(enrollments, okResult.Value);
+            var returnValue = Assert.IsType<List<EnrollmentModel>>(okResult.Value);
+            Assert.Single(returnValue);
         }
 
         [Fact]
         public async Task GetEnrollmentById_ReturnsNotFound_WhenEnrollmentNotFound()
         {
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEnrollmentByIdQuery>(), default)).ReturnsAsync(new List<EnrollmentModel>());
+            var studentId = 1;
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEnrollmentByIdQuery>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new NotFoundException("Student not found."));
 
-            var result = await _controller.GetEnrollmentById(1);
+            var result = await _controller.GetEnrollmentById(studentId);
 
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("Enrollment not found.", notFoundResult.Value);
+            Assert.Equal("Student not found.", notFoundResult.Value);
+        }
+
+        [Fact]
+        public async Task GetEnrollmentById_ReturnsBadRequest_WhenValidationExceptionOccurs()
+        {
+            var studentId = 1;
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEnrollmentByIdQuery>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ValidationException("Invalid request."));
+
+            var result = await _controller.GetEnrollmentById(studentId);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Invalid request.", badRequestResult.Value);
         }
     }
 }

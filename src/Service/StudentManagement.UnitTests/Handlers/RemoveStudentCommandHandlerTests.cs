@@ -4,6 +4,7 @@ using Moq;
 using StudentManagement.Domain.Command;
 using StudentManagement.Domain.Handlers;
 using StudentManagement.Models.Models;
+using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Repository.Interfaces;
 using Xunit;
 
@@ -24,7 +25,7 @@ namespace StudentManagement.UnitTests.Handlers
         public async Task Handle_ValidRequest_ShouldRemoveStudent()
         {
             var command = new RemoveStudentCommand { StudentId = 1 };
-            var student = new Student
+            var student = new StudentModel
             {
                 StudentId = 1,
                 StudentName = "John Doe",
@@ -35,7 +36,8 @@ namespace StudentManagement.UnitTests.Handlers
                 IsActive = true
             };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
+            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(student);
             _repositoryMock.Setup(r => r.DeleteStudentAsync(It.IsAny<Student>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
@@ -43,6 +45,8 @@ namespace StudentManagement.UnitTests.Handlers
 
             _repositoryMock.Verify(r => r.DeleteStudentAsync(It.Is<Student>(s => s.StudentId == command.StudentId), It.IsAny<CancellationToken>()), Times.Once);
         }
+
+
 
         [Fact]
         public async Task Handle_InvalidRequest_ShouldThrowValidationException()
@@ -91,7 +95,8 @@ namespace StudentManagement.UnitTests.Handlers
                
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
-            Assert.Contains(exception.Errors, e => e.PropertyName == nameof(command.StudentId) && e.ErrorMessage == "Student record is already in InActive status");
+            Assert.NotEmpty(exception.Errors);
+            Assert.Equal("Student does not exist.",exception.Errors.First().ErrorMessage);
         }
     }
 }

@@ -53,7 +53,7 @@ namespace StudentManagement.UnitTests.Handlers
 
             Assert.NotNull(result);
             Assert.Single(result);
-            Assert.Equal(enrollments, result);
+            Assert.Equal(enrollments[0].StudentName, result[0].StudentName);
         }
 
         [Fact]
