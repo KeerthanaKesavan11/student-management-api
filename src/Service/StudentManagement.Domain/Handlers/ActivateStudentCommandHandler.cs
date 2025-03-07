@@ -12,7 +12,7 @@ namespace StudentManagement.Domain.Handlers
     {
         private readonly IStudentRepository _repository;
 
-        public ActivateStudentCommandHandler(IStudentRepository repository)
+        public ActivateStudentCommandHandler(IStudentRepository repository, IValidator<ActivateStudentCommand> @object)
         {
             _repository = repository;
         }

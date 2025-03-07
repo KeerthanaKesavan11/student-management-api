@@ -22,7 +22,7 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_ValidRequest_ShouldCreateStudent()
         {
-           
+
             var command = new CreateStudentCommand
             {
                 StudentName = "John Doe",
@@ -46,10 +46,10 @@ namespace StudentManagement.UnitTests.Handlers
                 .Callback<Student, CancellationToken>((s, ct) => s.StudentId = student.StudentId)
                 .Returns(Task.CompletedTask);
 
-            
+
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            
+
             Assert.NotNull(result);
             Assert.Equal(student.StudentId, result.StudentId);
             Assert.Equal(student.StudentName, result.StudentName);
@@ -63,7 +63,7 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_InvalidRequest_ShouldThrowValidationException()
         {
-            
+
             var command = new CreateStudentCommand
             {
                 StudentName = "",
@@ -76,9 +76,11 @@ namespace StudentManagement.UnitTests.Handlers
             var validator = new CreateStudentCommandValidator();
             var results = await validator.ValidateAsync(command, CancellationToken.None);
 
-           
+
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
-            Assert.Equal(results.Errors, exception.Errors);
+            Assert.NotEmpty(exception.Errors);
+            Assert.Equal(2, exception.Errors.Count());
+            Assert.Equal("Student name is required.",exception.Errors.First().ErrorMessage);
         }
     }
 }

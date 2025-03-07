@@ -3,9 +3,12 @@ using FluentValidation.Results;
 using Moq;
 using StudentManagement.Domain.Command;
 using StudentManagement.Domain.Handlers;
-using StudentManagement.Domain.Validators;
 using StudentManagement.Models.Models;
+using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Repository.Interfaces;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace StudentManagement.UnitTests.Handlers
@@ -13,12 +16,14 @@ namespace StudentManagement.UnitTests.Handlers
     public class ActivateStudentCommandHandlerTests
     {
         private readonly Mock<IStudentRepository> _repositoryMock;
+        private readonly Mock<IValidator<ActivateStudentCommand>> _validatorMock;
         private readonly ActivateStudentCommandHandler _handler;
 
         public ActivateStudentCommandHandlerTests()
         {
             _repositoryMock = new Mock<IStudentRepository>();
-            _handler = new ActivateStudentCommandHandler(_repositoryMock.Object);
+            _validatorMock = new Mock<IValidator<ActivateStudentCommand>>();
+            _handler = new ActivateStudentCommandHandler(_repositoryMock.Object, _validatorMock.Object);
         }
 
         [Fact]
@@ -36,7 +41,20 @@ namespace StudentManagement.UnitTests.Handlers
                 IsActive = false
             };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
+            _validatorMock.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
+
+            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new StudentModel
+                {
+                    StudentId = student.StudentId,
+                    StudentName = student.StudentName,
+                    Dob = student.Dob,
+                    Email = student.Email,
+                    PhoneNumber = student.PhoneNumber,
+                    Address = student.Address,
+                    IsActive = student.IsActive ?? false
+                });
             _repositoryMock.Setup(r => r.ActivateStudentAsync(It.IsAny<Student>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
@@ -49,14 +67,20 @@ namespace StudentManagement.UnitTests.Handlers
         public async Task Handle_InvalidRequest_ShouldThrowValidationException()
         {
             var command = new ActivateStudentCommand { StudentId = 1 };
-            var validator = new ActivateStudentCommandValidator();
-            var validationResult = await validator.ValidateAsync(command);
+            var validationFailures = new List<ValidationFailure>
+            {
+                new ValidationFailure("StudentId", "Student does not exist.")
+            };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
-                
+            _validatorMock.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult(validationFailures));
+
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
-            Assert.Equal(validationResult.Errors, exception.Errors);
+            Assert.NotEmpty(exception.Errors);
+            Assert.Equal(validationFailures.Count, exception.Errors.Count());
+            Assert.Equal(validationFailures[0].PropertyName, exception.Errors.First().PropertyName);
+            Assert.Equal(validationFailures[0].ErrorMessage, exception.Errors.First().ErrorMessage);
         }
 
         [Fact]
@@ -64,8 +88,12 @@ namespace StudentManagement.UnitTests.Handlers
         {
             var command = new ActivateStudentCommand { StudentId = 1 };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
-               
+            _validatorMock.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
+
+            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((StudentModel)null);
+
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.Contains(exception.Errors, e => e.PropertyName == nameof(command.StudentId) && e.ErrorMessage == "Student does not exist.");
@@ -86,13 +114,24 @@ namespace StudentManagement.UnitTests.Handlers
                 IsActive = true
             };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
-                
+            _validatorMock.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
+
+            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new StudentModel
+                {
+                    StudentId = student.StudentId,
+                    StudentName = student.StudentName,
+                    Dob = student.Dob,
+                    Email = student.Email,
+                    PhoneNumber = student.PhoneNumber,
+                    Address = student.Address,
+                    IsActive = student.IsActive ?? false
+                });
+
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.Contains(exception.Errors, e => e.PropertyName == nameof(command.StudentId) && e.ErrorMessage == "Student record is already in active status");
         }
     }
 }
-
-

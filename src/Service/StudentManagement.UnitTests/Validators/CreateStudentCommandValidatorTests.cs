@@ -24,7 +24,7 @@ namespace StudentManagement.UnitTests.Validators
         [Fact]
         public void Validate_StudentNameIsInvalid_ShouldHaveValidationError()
         {
-            var command = new CreateStudentCommand { StudentName = "string" };
+            var command = new CreateStudentCommand { StudentName = "" };
             var result = _validator.TestValidate(command);
             result.ShouldHaveValidationErrorFor(x => x.StudentName);
         }

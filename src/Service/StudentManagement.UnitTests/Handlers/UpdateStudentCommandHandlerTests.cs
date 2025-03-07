@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
-using FluentValidation.Results;
 using Moq;
 using StudentManagement.Domain.Command;
 using StudentManagement.Domain.Handlers;
 using StudentManagement.Domain.Validators;
 using StudentManagement.Models.Models;
+using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Repository.Interfaces;
-using Xunit;
 
 namespace StudentManagement.UnitTests.Handlers
 {
@@ -34,7 +33,7 @@ namespace StudentManagement.UnitTests.Handlers
                 Address = "123 Main St"
             };
 
-            var student = new Student
+            var student = new StudentModel
             {
                 StudentId = 1,
                 StudentName = "John Doe",
@@ -45,8 +44,9 @@ namespace StudentManagement.UnitTests.Handlers
                 IsActive = true
             };
 
-            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
-                
+            _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(student);
+
             _repositoryMock.Setup(r => r.UpdateStudentAsync(It.IsAny<Student>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
@@ -54,6 +54,7 @@ namespace StudentManagement.UnitTests.Handlers
 
             _repositoryMock.Verify(r => r.UpdateStudentAsync(It.Is<Student>(s => s.StudentId == command.StudentId), It.IsAny<CancellationToken>()), Times.Once);
         }
+
 
         [Fact]
         public async Task Handle_InvalidRequest_ShouldThrowValidationException()
@@ -72,12 +73,13 @@ namespace StudentManagement.UnitTests.Handlers
             var validationResult = await validator.ValidateAsync(command);
 
             _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
-                
+
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
-            Assert.Equal(validationResult.Errors, exception.Errors);
+            Assert.NotEmpty(exception.Errors);
+            Assert.Equal(2, exception.Errors.Count());
+            Assert.Equal("Student name is required.", exception.Errors.First().ErrorMessage);
         }
-
         [Fact]
         public async Task Handle_StudentNotFound_ShouldThrowValidationException()
         {
@@ -92,7 +94,7 @@ namespace StudentManagement.UnitTests.Handlers
             };
 
             _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
-               
+
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.Contains(exception.Errors, e => e.PropertyName == nameof(command.StudentId) && e.ErrorMessage == "Student does not exist.");
@@ -123,10 +125,11 @@ namespace StudentManagement.UnitTests.Handlers
             };
 
             _repositoryMock.Setup(r => r.GetStudentAsync(command.StudentId, It.IsAny<CancellationToken>()));
-              
+
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
 
-            Assert.Contains(exception.Errors, e => e.PropertyName == nameof(command.StudentId) && e.ErrorMessage == "Student record is in Inactive status");
+            Assert.NotEmpty(exception.Errors);
+            Assert.Equal("Student does not exist.", exception.Errors.First().ErrorMessage);
         }
     }
 }

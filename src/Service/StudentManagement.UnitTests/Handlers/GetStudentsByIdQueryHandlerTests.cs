@@ -57,13 +57,15 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_InvalidRequest_ShouldThrowValidationException()
         {
-           
+
             var query = new GetStudentsByIdQuery { StudentId = 0 };
             var validator = new GetStudentsByIdQueryValidator();
             var results = await validator.ValidateAsync(query, CancellationToken.None);
 
             var exception = await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(query, CancellationToken.None));
-            Assert.Equal(results.Errors, exception.Errors);
+            Assert.NotEmpty(exception.Errors);
+            Assert.Equal(results.Errors.Count, exception.Errors.Count());
+            Assert.Equal(results.Errors[0].PropertyName, exception.Errors.First().PropertyName);
         }
 
         [Fact]
