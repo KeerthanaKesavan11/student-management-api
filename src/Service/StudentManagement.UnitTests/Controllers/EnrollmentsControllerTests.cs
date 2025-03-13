@@ -31,7 +31,25 @@ namespace StudentManagement.UnitTests.Controllers
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetAllEnrollmentsQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(enrollments);
 
-            var result = await _controller.GetAllEnrollments();
+            var result = await _controller.GetAllEnrollments(null);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<List<EnrollmentModel>>(okResult.Value);
+            Assert.Equal(2, returnValue.Count);
+        }
+
+        [Fact]
+        public async Task GetAllEnrollments_WithFilter_ReturnsFilteredEnrollments()
+        {
+            var enrollments = new List<EnrollmentModel>
+            {
+                new EnrollmentModel { StudentName = "John Doe", Course = "Math", Duration = "1 Year", EnrollmentDate = DateOnly.FromDateTime(DateTime.Now), Grade = "A" },
+                new EnrollmentModel { StudentName = "Jane Smith", Course = "Science", Duration = "1 Year", EnrollmentDate = DateOnly.FromDateTime(DateTime.Now), Grade = "B" }
+            };
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetAllEnrollmentsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(enrollments);
+
+            var result = await _controller.GetAllEnrollments("equals(StudentName,'John Doe')");
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<List<EnrollmentModel>>(okResult.Value);

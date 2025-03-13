@@ -8,6 +8,8 @@ namespace StudentManagement.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     public class EnrollmentsController : Controller
     {
         private readonly IMediator _mediator;
@@ -18,14 +20,14 @@ namespace StudentManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllEnrollments()
+        public async Task<IActionResult> GetAllEnrollments([FromQuery] string? filter)
         {
-            var query = new GetAllEnrollmentsQuery();
+            var query = new GetAllEnrollmentsQuery { Filter = filter };
             var enrollments = await _mediator.Send(query);
             return Ok(enrollments);
         }
 
-        [HttpGet("{studentId}")]
+        [HttpGet("{studentId}")]        
         public async Task<IActionResult> GetEnrollmentById(int studentId)
         {
             try

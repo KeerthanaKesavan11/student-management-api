@@ -30,7 +30,7 @@ namespace StudentManagement.API.Controllers
         }
         [HttpGet]
         [ApiVersion("2.0")]
-        public async Task<IActionResult> GetAllStudentsV2([FromQuery] string? filter, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllStudentsV2()
         {
             var query = new GetStudentsQueryV2();
             var students = await _mediator.Send(query);

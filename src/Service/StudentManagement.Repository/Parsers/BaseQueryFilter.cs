@@ -9,8 +9,8 @@ namespace StudentManagement.Domain.Parsers
 			RegexOptions.Compiled,
 			TimeSpan.FromMilliseconds(100));
 
-		protected abstract List<string> ValidEqualsAttributes { get; }
-		protected abstract List<string> ValidContainsAttributes { get; }
+        protected abstract List<string> ValidEqualsAttributes { get; }
+        protected abstract List<string> ValidContainsAttributes { get; }   
 
 		public bool TryParseMultiFilter(string filter, out Dictionary<string, string>? parsedQuery, out string? error)
 		{
@@ -20,7 +20,7 @@ namespace StudentManagement.Domain.Parsers
 				error = null;
 				return true;
 			}
-
+			
 			var matches = MultiFilterRegex.Matches(filter);
 
 			var results = new Dictionary<string, string>();
