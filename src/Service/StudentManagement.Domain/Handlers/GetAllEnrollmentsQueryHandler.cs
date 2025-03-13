@@ -17,7 +17,7 @@ namespace StudentManagement.Domain.Handlers
 
         public async Task<List<EnrollmentModel>> Handle(GetAllEnrollmentsQuery request, CancellationToken cancellationToken)
         {
-            var enrollments = await _repository.GetAllEnrollmentsAsync(cancellationToken);
+            var enrollments = await _repository.GetAllEnrollmentsAsync(request.Filter, cancellationToken);
             if (enrollments == null || !enrollments.Any())
             {
                 throw new NotFoundException("No active enrollments found.");

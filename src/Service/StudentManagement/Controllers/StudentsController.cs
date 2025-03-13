@@ -10,7 +10,7 @@ namespace StudentManagement.API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
- 
+
     public class StudentsController : Controller
     {
         private readonly IMediator _mediator;
@@ -19,15 +19,26 @@ namespace StudentManagement.API.Controllers
         {
             _mediator = mediator;
         }
+       
         [HttpGet]
-        public async Task<IActionResult> GetAllStudents()
+        [ApiVersion("1.0")]
+        public async Task<IActionResult> GetAllStudentsV1()
         {
             var query = new GetStudentsQuery();
             var students = await _mediator.Send(query);
             return Ok(students);
         }
+        [HttpGet]
+        [ApiVersion("2.0")]
+        public async Task<IActionResult> GetAllStudentsV2()
+        {
+            var query = new GetStudentsQueryV2();
+            var students = await _mediator.Send(query);
+            return Ok(students);
+        }
 
         [HttpGet("{studentId}")]
+        [ApiVersion("1.0")]
         public async Task<IActionResult> GetStudentsById(int studentId)
         {
             try
@@ -46,12 +57,13 @@ namespace StudentManagement.API.Controllers
             }
         }
         [HttpPost]
+        [ApiVersion("1.0")]
         public async Task<IActionResult> CreateStudent([FromBody] CreateStudentCommand command)
         {
             try
             {
                 var student = await _mediator.Send(command);
-                return CreatedAtAction(nameof(GetAllStudents), new { id = student.StudentId }, student );
+                return CreatedAtAction(nameof(GetAllStudentsV1), new { id = student.StudentId }, student );
             }
             catch (ValidationException ex)
             {
@@ -60,6 +72,7 @@ namespace StudentManagement.API.Controllers
         }
 
         [HttpPut("{studentId}")]
+        [ApiVersion("1.0")]
         public async Task<IActionResult> UpdateStudent(int studentId, [FromBody] UpdateStudentCommand command)
         {
             if (studentId != command.StudentId)
@@ -78,6 +91,7 @@ namespace StudentManagement.API.Controllers
         }
 
         [HttpPatch("{studentId}/activate")]
+        [ApiVersion("1.0")]
         public async Task<IActionResult> ActivateStudent(int studentId)
         {
             try
@@ -93,6 +107,7 @@ namespace StudentManagement.API.Controllers
         }
 
         [HttpDelete("{studentId}")]
+        [ApiVersion("1.0")]
         public async Task<IActionResult> RemoveStudent(int studentId)
         {
             try

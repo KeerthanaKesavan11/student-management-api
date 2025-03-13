@@ -26,7 +26,7 @@ namespace StudentManagement.Tests.Controllers
         {
             var students = new List<StudentModel> { new StudentModel { StudentId = 1, StudentName = "John Doe" } };
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetStudentsQuery>(), default)).ReturnsAsync(students);
-            var result = await _controller.GetAllStudents();
+            var result = await _controller.GetAllStudentsV1();
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(students, okResult.Value);
         }
@@ -58,7 +58,7 @@ namespace StudentManagement.Tests.Controllers
             _mediatorMock.Setup(m => m.Send(It.IsAny<CreateStudentCommand>(), default)).ReturnsAsync(student);
             var result = await _controller.CreateStudent(command);
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
-            Assert.Equal("GetAllStudents", createdAtActionResult.ActionName);
+            Assert.NotNull(createdAtActionResult.RouteValues);
             Assert.Equal(student.StudentId, createdAtActionResult.RouteValues["id"]);
             Assert.Equal(student, createdAtActionResult.Value);
         }

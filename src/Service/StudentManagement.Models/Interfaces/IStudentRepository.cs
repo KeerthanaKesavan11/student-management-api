@@ -6,6 +6,7 @@ namespace StudentManagement.Repository.Interfaces
     public interface IStudentRepository
     {
         Task<IEnumerable<StudentModel>> GetAllStudentsAsync(CancellationToken cancellationToken);
+        Task<IEnumerable<StudentModelV2>> GetAllStudentsAsyncV2(CancellationToken cancellationToken);
         Task<StudentModel?> GetStudentsByIdAsync(int studentId, CancellationToken cancellationToken);
         Task AddStudentAsync(Student student, CancellationToken cancellationToken);
         Task UpdateStudentAsync(Student student, CancellationToken cancellationToken);

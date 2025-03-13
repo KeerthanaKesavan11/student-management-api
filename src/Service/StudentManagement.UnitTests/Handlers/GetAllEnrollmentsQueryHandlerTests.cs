@@ -21,7 +21,6 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_ReturnsEnrollments_WhenEnrollmentsExist()
         {
-            
             var enrollments = new List<EnrollmentModel>
             {
                 new EnrollmentModel
@@ -34,10 +33,10 @@ namespace StudentManagement.UnitTests.Handlers
                 }
             };
 
-            _enrollmentRepositoryMock.Setup(repo => repo.GetAllEnrollmentsAsync(It.IsAny<CancellationToken>()))
+            _enrollmentRepositoryMock.Setup(repo => repo.GetAllEnrollmentsAsync(It.IsAny<string?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(enrollments);
 
-            var query = new GetAllEnrollmentsQuery();
+            var query = new GetAllEnrollmentsQuery { Filter = null };
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -49,13 +48,39 @@ namespace StudentManagement.UnitTests.Handlers
         [Fact]
         public async Task Handle_ThrowsNotFoundException_WhenNoEnrollmentsFound()
         {
-            
-            _enrollmentRepositoryMock.Setup(repo => repo.GetAllEnrollmentsAsync(It.IsAny<CancellationToken>()))
+           _enrollmentRepositoryMock.Setup(repo => repo.GetAllEnrollmentsAsync(It.IsAny<string?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<EnrollmentModel>());
 
-            var query = new GetAllEnrollmentsQuery();
+            var query = new GetAllEnrollmentsQuery { Filter = null };
 
             await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_ReturnsFilteredEnrollments_WhenFilterIsProvided()
+        {
+            var enrollments = new List<EnrollmentModel>
+            {
+                new EnrollmentModel
+                {
+                    StudentName = "Jane Doe",
+                    Course = "Science",
+                    Duration = "6 months",
+                    EnrollmentDate = DateOnly.FromDateTime(DateTime.Now),
+                    Grade = "B"
+                }
+            };
+
+            _enrollmentRepositoryMock.Setup(repo => repo.GetAllEnrollmentsAsync("Science", It.IsAny<CancellationToken>()))
+                .ReturnsAsync(enrollments);
+
+            var query = new GetAllEnrollmentsQuery { Filter = "Science" };
+
+            var result = await _handler.Handle(query, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal(enrollments[0].StudentName, result[0].StudentName);
         }
     }
 }

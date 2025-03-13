@@ -2,6 +2,7 @@
 using StudentManagement.Models.Models;
 using StudentManagement.Models.Models.DTOs;
 using StudentManagement.Repository.Interfaces;
+using StudentManagement.Domain.Parsers;
 
 namespace StudentManagement.Repository
 {
@@ -14,9 +15,9 @@ namespace StudentManagement.Repository
             _context = context;
         }
 
-        public async Task<List<EnrollmentModel>> GetAllEnrollmentsAsync(CancellationToken cancellationToken)
+        public async Task<List<EnrollmentModel>> GetAllEnrollmentsAsync(string? filter, CancellationToken cancellationToken)
         {
-            return await _context.CourseDetails
+            var enrollments = await _context.CourseDetails
                 .Where(cd => cd.IsActive == true)
                 .Select(cd => new EnrollmentModel
                 {
@@ -27,6 +28,24 @@ namespace StudentManagement.Repository
                     Grade = cd.GradeNavigation.Grade1.ToString()
                 })
                 .ToListAsync(cancellationToken);
+
+            if (!string.IsNullOrEmpty(filter))
+            {
+                var filterParser = new EnrollmentQueryFilter();
+                if (filterParser.TryParseMultiFilter(filter, out var parsedQuery, out var error))
+                {
+                    if (parsedQuery.ContainsKey("StudentName"))
+                    {
+                        enrollments = enrollments.Where(e => e.StudentName.Contains(parsedQuery["StudentName"], StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(error);
+                }
+            }
+
+            return enrollments;
         }
 
         public async Task<List<EnrollmentModel>> GetEnrollmentByIdAsync(int studentId, CancellationToken cancellationToken)
