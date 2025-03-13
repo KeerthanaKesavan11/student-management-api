@@ -7,6 +7,10 @@ namespace StudentManagement.Domain.Queries
     {
 
     }
+    public class GetStudentsQueryV2 : IRequest<IEnumerable<StudentModelV2>>
+    {
+
+    }
     public class GetStudentsByIdQuery : IRequest<StudentModel>
     {
         public int StudentId { get; set; }

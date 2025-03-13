@@ -28,6 +28,22 @@ namespace StudentManagement.Repository
                 })
                 .ToListAsync(cancellationToken);
         }
+        public async Task<IEnumerable<StudentModelV2>> GetAllStudentsAsyncV2(CancellationToken cancellationToken)
+        {
+            return await _context.Students
+               .Select(student => new StudentModelV2
+                {
+                    StudentId = student.StudentId,
+                    StudentName = student.StudentName,
+                    Dob = student.Dob,
+                    Email = student.Email,
+                    PhoneNumber = student.PhoneNumber,
+                    Address = student.Address,
+                    IsActive = (bool)student.IsActive
+                })
+                .ToListAsync(cancellationToken);
+        }
+
 
         public async Task<StudentModel?> GetStudentsByIdAsync(int studentId, CancellationToken cancellationToken)
         {
@@ -53,7 +69,9 @@ namespace StudentManagement.Repository
 
         public async Task<StudentModel?> GetStudentAsync(int studentId, CancellationToken cancellationToken)
         {
-            var student = await _context.Students.FindAsync(studentId);
+            var student = await _context.Students
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(s => s.StudentId == studentId, cancellationToken);
 
             if (student == null)
             {
