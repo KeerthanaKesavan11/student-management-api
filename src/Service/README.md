@@ -72,18 +72,3 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 ## Additional Information
 
 For Additional information, please refer [here](https://emishealthgroup.atlassian.net/wiki/spaces/DIA/pages/7690780737/Student+Management+-+POC).
-
-
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
